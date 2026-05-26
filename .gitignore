@@ -1,0 +1,30 @@
+# --- 凭据 & 配置（禁止提交） ---
+.env
+.env.local
+*.env.*
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+.venv/
+venv/
+env/
+
+# --- IDE ---
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# --- OS ---
+.DS_Store
+Thumbs.db
+
+# --- Playwright 浏览器缓存（可选） ---
+ms-playwright/

@@ -1,0 +1,5 @@
+Navigating to https://192.210.253.1/#/login ...
+Error: Page.goto: net::ERR_CONNECTION_TIMED_OUT at https://192.210.253.1/#/login
+Call log:
+  - navigating to "https://192.210.253.1/#/login", waiting until "domcontentloaded"
+

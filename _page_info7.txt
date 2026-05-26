@@ -1,0 +1,7 @@
+input not found
+
+=== Tab panes ===
+  Pane 0: display=none vis=hidden opacity=1 size=0x0
+  Pane 1: display=none vis=hidden opacity=1 size=0x0
+  Pane 2: display=block vis=visible opacity=1 size=330x0
+  Pane 3: display=none vis=hidden opacity=1 size=0x0

@@ -1,0 +1,6 @@
+fastapi>=0.110.0
+uvicorn[standard]>=0.29.0
+python-dotenv>=1.0.0
+playwright>=1.44.0
+pywinauto>=0.6.8
+psutil>=5.9.0

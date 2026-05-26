@@ -1,0 +1,103 @@
+[
+  {
+    "id": "shouxinyun",
+    "name": "首信云",
+    "sites": [
+      {
+        "id": "capinfo_sms_login",
+        "type": "web",
+        "color": "orange",
+        "name": "VPN 登录",
+        "url": "https://tzzwy.capcloud.com.cn:8443/login",
+        "selectors": {
+          "pre_fill_clicks": [
+            ".ivu-tabs-tab:nth-child(3)"
+          ],
+          "username": "input[placeholder=\"请输入手机号\"]",
+          "login_button": "button:has-text('登录')"
+        }
+      },
+      {
+        "id": "capinfo_internet",
+        "type": "web",
+        "name": "互联网堡垒机",
+        "url": "https://192.210.253.1/#/login",
+        "selectors": {
+          "username": "input[name=\"username\"]",
+          "password": "input[name=\"pwd\"]",
+          "login_button": "button:has-text('登录')",
+          "pre_checks": [
+            "text=记住登录名",
+            "text=我已阅读并同意"
+          ]
+        }
+      },
+      {
+        "id": "capinfo_extranet",
+        "type": "web",
+        "name": "政务外网堡垒机",
+        "url": "https://192.210.125.1/#/login",
+        "selectors": {
+          "username": "input[name=\"username\"]",
+          "password": "input[name=\"pwd\"]",
+          "login_button": "button:has-text('登录')",
+          "pre_checks": [
+            "text=记住登录名",
+            "text=我已阅读并同意"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "aliyun",
+    "name": "阿里云",
+    "sites": [
+      {
+        "id": "aliyun_vpn_mgmt",
+        "type": "web",
+        "color": "orange",
+        "name": "VPN管理",
+        "url": "https://vpn-aliyun.isignet.cn:1629"
+      },
+      {
+        "id": "aliyun_vpn_login",
+        "type": "web",
+        "color": "orange",
+        "name": "VPN登录",
+        "url": "https://vpn-aliyun.isignet.cn:2629"
+      },
+      {
+        "id": "aliyun_bastion",
+        "type": "web",
+        "name": "堡垒机",
+        "url": "https://192.168.27.146:9981",
+        "selectors": {
+          "username": "#username",
+          "password": "#password"
+        }
+      },
+      {
+        "id": "aliyun_logeasy",
+        "type": "web",
+        "name": "日志易",
+        "url": "https://10.66.4.31",
+        "selectors": {
+          "username": "input[name=\"username\"]",
+          "password": "input[name=\"password\"]",
+          "login_button": "button:has-text('登录')"
+        }
+      }
+    ]
+  },
+  {
+    "id": "wuhan_xinchuang",
+    "name": "武汉信创云",
+    "sites": []
+  },
+  {
+    "id": "tencent_cloud",
+    "name": "腾讯云",
+    "sites": []
+  }
+]

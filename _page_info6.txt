@@ -1,0 +1,21 @@
+before click - tab class: ivu-tabs-tab
+before click - tab active: false
+tab panes: 4
+  pane 0: class=ivu-tabs-tabpane hidden=false
+  pane 1: class=ivu-tabs-tabpane hidden=false
+  pane 2: class=ivu-tabs-tabpane hidden=false
+  pane 3: class=ivu-tabs-tabpane hidden=false
+clicked tab 2
+
+=== After click ===
+Tabs:
+  [0] "±æµÿ’À∫≈" active=False
+  [1] "∂Ã–≈" active=False
+  [2] "” œ‰" active=True
+  [3] "Tgent…®¬Î" active=False
+Panes:
+  [0] hidden=False style=visibility: hidden; display: none;
+  [1] hidden=False style=visibility: hidden; display: none;
+  [2] hidden=False style=visibility: visible;
+  [3] hidden=False style=visibility: hidden; display: none;
+Phone: visible=NOT FOUND style=N/A classes=N/A

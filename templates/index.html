@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AuthDash &middot; 登录助手</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header>
+    <h1>AuthDash</h1>
+    <p class="subtitle">本地登录助手 &middot; 一键登录</p>
+  </header>
+
+  <main>
+    <div class="regions" id="site-regions">
+<!-- REGIONS_PLACEHOLDER -->
+    </div>
+  </main>
+
+  <footer>
+    <p>浏览器窗口会保持打开状态，遇到验证码时请手动输入。</p>
+  </footer>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script>
+    function showToast(msg, type) {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.className = 'toast ' + type + ' show';
+      setTimeout(() => { el.className = 'toast hidden'; }, 4000);
+    }
+
+    function toggleRegion(id) {
+      const el = document.getElementById('region-' + id);
+      const arrow = document.getElementById('arrow-' + id);
+      if (!el) return;
+      const isCollapsed = el.classList.toggle('collapsed');
+      arrow.textContent = isCollapsed ? '▶' : '▼';
+    }
+
+    document.querySelectorAll('.card').forEach(card => {
+      card.addEventListener('click', async () => {
+        if (card.classList.contains('loading')) return;
+
+        const siteId = card.dataset.siteId;
+        const siteType = card.dataset.type;
+        const endpoint = siteType === 'app' ? '/api/app-launch/' : '/api/login/';
+
+        card.classList.add('loading');
+
+        try {
+          const resp = await fetch(endpoint + encodeURIComponent(siteId), { method: 'POST' });
+          const data = await resp.json();
+          if (resp.ok) {
+            showToast('✅ ' + data.message, 'success');
+          } else {
+            showToast('❌ ' + (data.detail || '请求失败'), 'error');
+          }
+        } catch (err) {
+          showToast('❌ 网络错误：' + err.message, 'error');
+        } finally {
+          card.classList.remove('loading');
+        }
+      });
+    });
+  </script>
+</body>
+</html>

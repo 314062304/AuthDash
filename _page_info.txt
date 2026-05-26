@@ -1,0 +1,49 @@
+=== Inputs ===
+  [0] placeholder="请输入零信任账号" type=text visible=True name=
+  [1] placeholder="请输入零信任密码" type=password visible=True name=
+  [2] placeholder="请输入验证码" type=text visible=True name=
+  [3] placeholder="请输入手机号" type=text visible=False name=
+  [4] placeholder="请输入验证码" type=text visible=False name=
+  [5] placeholder="请输入新密码" type=password visible=False name=
+  [6] placeholder="请确认新密码" type=password visible=False name=
+  [7] placeholder="请输入原手机号" type=text visible=False name=
+  [8] placeholder="请输入验证码" type=text visible=False name=
+  [9] placeholder="" type=radio visible=False name=ivuRadioGroup_1779419303434_0
+  [10] placeholder="" type=radio visible=False name=ivuRadioGroup_1779419303434_0
+  [11] placeholder="" type=radio visible=False name=ivuRadioGroup_1779419303434_0
+  [12] placeholder="申请账号" type=text visible=False name=
+  [13] placeholder="申请解锁理由" type=text visible=False name=
+=== Tabs ===
+  text="本地账号  短信  邮箱  Tgent扫" selected=False
+  text="本地账号  短信  邮箱  Tgent扫" selected=False
+  text="本地账号  短信  邮箱  Tgent扫" selected=False
+  text="本地账号  短信  邮箱  Tgent扫" selected=False
+  text="" selected=False
+  text="" selected=False
+  text="本地账号  短信  邮箱  Tgent扫" selected=False
+  text="本地账号  短信  邮箱  Tgent扫" selected=False
+  text="" selected=False
+  text="本地账号" selected=True
+  text="短信" selected=False
+  text="邮箱" selected=False
+  text="Tgent扫码" selected=False
+  text="" selected=False
+  text="" selected=False
+  text="" selected=False
+  text="" selected=False
+  text="" selected=False
+  text="" selected=False
+=== Buttons ===
+  text="" class="left ivu-carousel-arrow ivu-carousel-arrow-never"
+  text="" class="right ivu-carousel-arrow ivu-carousel-arrow-never"
+  text="" class=""
+  text="登录" class="ivu-btn ivu-btn-primary"
+  text="下载终端" class="download-btn ivu-btn ivu-btn-text ivu-btn-long"
+  text="取消" class="ivu-btn ivu-btn-default"
+  text="保存" class="ivu-btn ivu-btn-primary"
+  text="取消" class="ivu-btn ivu-btn-default"
+  text="下一步" class="ivu-btn ivu-btn-primary"
+  text="取消" class="ivu-btn ivu-btn-default"
+  text="保存" class="ivu-btn ivu-btn-primary"
+=== Charset: https://tzzwy.capcloud.com.cn:8443/login ===
+charset=UTF-8
