@@ -2,7 +2,6 @@ import json
 import os
 import asyncio
 import subprocess
-import tkinter as tk
 from pathlib import Path
 from contextlib import asynccontextmanager
 from html import escape
@@ -12,7 +11,6 @@ from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from playwright.async_api import async_playwright, Browser, Playwright
 from dotenv import load_dotenv
-
 # ---------------------------------------------------------------------------
 # Paths
 # ---------------------------------------------------------------------------
@@ -27,21 +25,6 @@ STATIC_DIR = BASE_DIR / "static"
 _playwright: Playwright | None = None
 _browser: Browser | None = None
 _lock = asyncio.Lock()
-SCREEN_W: int = 1920
-SCREEN_H: int = 1080
-
-
-def detect_screen_size() -> tuple[int, int]:
-    """Detect the primary monitor resolution at startup."""
-    try:
-        root = tk.Tk()
-        root.withdraw()
-        w = root.winfo_screenwidth()
-        h = root.winfo_screenheight()
-        root.destroy()
-        return w, h
-    except Exception:
-        return 1920, 1080
 
 
 # ---------------------------------------------------------------------------
@@ -85,7 +68,7 @@ async def ensure_browser() -> Browser:
             _browser = await _playwright.chromium.launch(
                 headless=False,
                 args=[
-                    f"--window-size={SCREEN_W},{SCREEN_H}",
+                    "--start-maximized",
                     "--ignore-certificate-errors",
                     "--disable-web-security",
                 ],
@@ -180,9 +163,7 @@ def render_index(regions: list[dict]) -> str:
 # ---------------------------------------------------------------------------
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    global SCREEN_W, SCREEN_H
     load_dotenv()
-    SCREEN_W, SCREEN_H = detect_screen_size()
     yield
     await shutdown_browser()
 
@@ -233,7 +214,7 @@ async def login(site_id: str):
     try:
         browser = await ensure_browser()
         context = await browser.new_context(
-            viewport={"width": SCREEN_W, "height": SCREEN_H},
+            no_viewport=True,
             ignore_https_errors=True,
         )
         page = await context.new_page()

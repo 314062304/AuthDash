@@ -93,7 +93,19 @@
   {
     "id": "wuhan_xinchuang",
     "name": "武汉信创云",
-    "sites": []
+    "sites": [
+      {
+        "id": "wuhan_resource_mgmt",
+        "type": "web",
+        "name": "资源管理模块",
+        "url": "https://one.console.res.bjca-xc-cloud.cn/ascm/login?oauth_callback=https%3A%2F%2Fone.console.res.bjca-xc-cloud.cn%2Fascm%2Fworkbench",
+        "selectors": {
+          "username": "#account",
+          "password": "#password",
+          "login_button": "button:has-text('账号登录')"
+        }
+      }
+    ]
   },
   {
     "id": "tencent_cloud",
