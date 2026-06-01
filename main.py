@@ -4,7 +4,9 @@ import asyncio
 import subprocess
 from pathlib import Path
 from contextlib import asynccontextmanager
-from html import escape
+
+import dns.resolver
+import dns.exception
 
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import HTMLResponse, JSONResponse
@@ -93,69 +95,10 @@ async def shutdown_browser():
 
 
 # ---------------------------------------------------------------------------
-# Template rendering (inline, no Jinja2 dependency)
+# Template rendering
 # ---------------------------------------------------------------------------
-def render_index(regions: list[dict]) -> str:
-    """Render the index page — reads the HTML template and injects region accordion."""
-    template = (TEMPLATES_DIR / "index.html").read_text(encoding="utf-8")
-
-    def _split_name(name: str) -> tuple[str, str]:
-        """Split '互联网 (HLW)' into ('互联网', '（HLW）')."""
-        if "(" in name:
-            parts = name.rsplit("(", 1)
-            title = parts[0].strip()
-            subtitle = "（" + parts[1].rstrip(")").strip() + "）"
-            return title, subtitle
-        return name, ""
-
-    def render_site_card(s: dict) -> str:
-        sid = escape(s["id"], quote=True)
-        stype = escape(s.get("type", "web"), quote=True)
-        color_cls = " card-orange" if s.get("color") == "orange" else ""
-        full_name = s.get("name", sid)
-        title, subtitle = _split_name(full_name)
-        sub_html = f'<div class="card-sub">{escape(subtitle)}</div>' if subtitle else ""
-
-        return f"""\
-        <div class="card{color_cls}" data-site-id="{sid}" data-type="{stype}">
-          <div class="card-body">
-            <div class="card-title">{escape(title)}</div>
-            {sub_html}
-          </div>
-        </div>"""
-
-    region_parts = []
-    for r in regions:
-        rid = escape(r["id"], quote=True)
-        rname = escape(r.get("name", rid), quote=True)
-        sites = r.get("sites", [])
-
-        if sites:
-            cards_html = "\n".join(render_site_card(s) for s in sites)
-            grid = f"""<div class="grid">{cards_html}</div>"""
-        else:
-            grid = """<div class="region-empty">暂无已配置站点</div>"""
-
-        region_parts.append(f"""\
-    <div class="region" data-region-id="{rid}">
-      <div class="region-header" onclick="toggleRegion('{rid}')">
-        <h2>{rname}</h2>
-        <span class="region-arrow" id="arrow-{rid}">&#9660;</span>
-      </div>
-      <div class="region-content" id="region-{rid}">
-        {grid}
-      </div>
-    </div>""")
-
-    regions_html = "\n".join(region_parts)
-    if not regions:
-        regions_html = """\
-    <div class="empty-state">
-      <p>&#x26A0;&#xFE0F; config.json 为空或未找到，请先配置网站列表。</p>
-    </div>"""
-
-    html = template.replace("<!-- REGIONS_PLACEHOLDER -->", regions_html)
-    return html
+def render_index() -> str:
+    return (TEMPLATES_DIR / "index.html").read_text(encoding="utf-8")
 
 
 # ---------------------------------------------------------------------------
@@ -179,13 +122,64 @@ if STATIC_DIR.exists():
 # ---------------------------------------------------------------------------
 @app.get("/", response_class=HTMLResponse)
 async def index():
-    regions = load_config()
-    return HTMLResponse(render_index(regions))
+    return HTMLResponse(render_index())
 
 
 @app.get("/api/config")
 async def get_config():
     return JSONResponse(load_config())
+
+
+# ---------------------------------------------------------------------------
+# DNS Query
+# ---------------------------------------------------------------------------
+RECORD_TYPES_MAP = {
+    "A": lambda r: str(r.address),
+    "AAAA": lambda r: str(r.address),
+    "CNAME": lambda r: str(r.target),
+    "MX": lambda r: f"{r.preference} {r.exchange}",
+    "NS": lambda r: str(r.target),
+    "TXT": lambda r: " ".join(r.strings) if r.strings else "",
+}
+
+
+@app.post("/api/dns/query")
+async def dns_query(data: dict):
+    domain = data.get("domain", "").strip()
+
+    if not domain:
+        raise HTTPException(status_code=400, detail="请输入域名")
+
+    loop = asyncio.get_event_loop()
+
+    try:
+        all_records = []
+        for rt in ("A", "AAAA", "CNAME", "MX", "NS", "TXT"):
+            try:
+                answers = await loop.run_in_executor(
+                    None, lambda rt=rt: dns.resolver.resolve(domain, rt, raise_on_no_answer=False)
+                )
+                fmt = RECORD_TYPES_MAP.get(rt, str)
+                for r in answers:
+                    ttl = answers.rrset.ttl if answers.rrset else None
+                    all_records.append({"value": fmt(r), "ttl": ttl, "rtype": rt})
+            except (dns.resolver.NoAnswer, dns.resolver.NXDOMAIN):
+                pass
+            except Exception:
+                pass
+
+        if not all_records:
+            try:
+                dns.resolver.resolve(domain, "A")
+            except dns.resolver.NXDOMAIN:
+                raise HTTPException(status_code=404, detail=f"域名 '{domain}' 不存在")
+
+        return JSONResponse({"domain": domain, "records": all_records})
+
+    except dns.exception.Timeout:
+        raise HTTPException(status_code=504, detail="DNS 查询超时")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.post("/api/login/{site_id}")
