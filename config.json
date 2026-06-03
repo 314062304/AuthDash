@@ -4,20 +4,6 @@
     "name": "首信云",
     "sites": [
       {
-        "id": "capinfo_sms_login",
-        "type": "web",
-        "color": "orange",
-        "name": "VPN 登录",
-        "url": "https://tzzwy.capcloud.com.cn:8443/login",
-        "selectors": {
-          "pre_fill_clicks": [
-            ".ivu-tabs-tab:nth-child(3)"
-          ],
-          "username": "input[placeholder=\"请输入手机号\"]",
-          "login_button": "button:has-text('登录')"
-        }
-      },
-      {
         "id": "capinfo_internet",
         "type": "web",
         "name": "互联网堡垒机",

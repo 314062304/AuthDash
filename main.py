@@ -3,6 +3,7 @@ import os
 import asyncio
 import subprocess
 import sys
+import threading
 from pathlib import Path
 from contextlib import asynccontextmanager
 
@@ -34,9 +35,7 @@ STATIC_DIR = BASE_DIR / "static"
 # NOTE: Playwright runs via sync_api wrapped in run_in_executor to work
 # around Python 3.13 Windows asyncio subprocess issue (NotImplementedError)
 # ---------------------------------------------------------------------------
-_playwright = None
-_browser = None
-_browser_lock = asyncio.Lock()
+# Thread-local Playwright instances — each thread manages its own.
 
 
 # ---------------------------------------------------------------------------
@@ -67,21 +66,24 @@ def get_credentials(site_id: str) -> tuple[str | None, str | None]:
 
 # ── Synchronous Playwright helpers (run in executor) ──────────────
 
+# Each thread gets its own Playwright + Browser instance via threading.local()
+_pw_local = threading.local()
+
+
 def _ensure_browser_sync():
-    """Get or create the shared browser instance (sync, runs in executor)."""
-    global _playwright, _browser
-    if _browser is not None and _browser.is_connected():
-        return _browser
-    # Close stale browser if any
-    if _browser is not None:
+    """Get or create a Playwright+Browser bound to the current thread."""
+    pw = getattr(_pw_local, "_pw", None)
+    if pw is None:
+        pw = _pw_local._pw = sync_playwright().start()
+    browser = getattr(_pw_local, "_browser", None)
+    if browser is not None and browser.is_connected():
+        return browser
+    if browser is not None:
         try:
-            _browser.close()
+            browser.close()
         except Exception:
             pass
-        _browser = None
-    if _playwright is None:
-        _playwright = sync_playwright().start()
-    _browser = _playwright.chromium.launch(
+    _pw_local._browser = pw.chromium.launch(
         headless=False,
         args=[
             "--start-maximized",
@@ -89,24 +91,25 @@ def _ensure_browser_sync():
             "--disable-web-security",
         ],
     )
-    return _browser
+    return _pw_local._browser
 
 
-def _shutdown_browser_sync():
-    """Close browser and stop playwright (sync)."""
-    global _playwright, _browser
-    if _browser is not None:
+def _try_close_pw():
+    """Close thread-local browser and playwright (idempotent)."""
+    b = getattr(_pw_local, "_browser", None)
+    if b is not None:
         try:
-            _browser.close()
+            b.close()
         except Exception:
             pass
-        _browser = None
-    if _playwright is not None:
+        _pw_local._browser = None
+    pw = getattr(_pw_local, "_pw", None)
+    if pw is not None:
         try:
-            _playwright.stop()
+            pw.stop()
         except Exception:
             pass
-        _playwright = None
+        _pw_local._pw = None
 
 
 def _do_login_sync(site: dict, username: str | None, password: str | None) -> dict:
@@ -188,8 +191,6 @@ def render_index() -> str:
 async def lifespan(app: FastAPI):
     load_dotenv()
     yield
-    loop = asyncio.get_event_loop()
-    await loop.run_in_executor(None, _shutdown_browser_sync)
 
 
 app = FastAPI(title="AuthDash", version="0.1.0", lifespan=lifespan)
@@ -334,38 +335,43 @@ async def app_launch(site_id: str):
 
 def _launch_app_and_fill(site: dict):
     """Launch a desktop app and bring its window to the foreground."""
+    import pythoncom
     import psutil
     from pywinauto import Desktop
 
-    app_path = site["app_path"]
+    pythoncom.CoInitialize()
+    try:
+        app_path = site["app_path"]
 
-    # 1. Check if yuanbao.exe is already running (Tgent's actual process)
-    yuanbao_proc = None
-    for p in psutil.process_iter(['pid', 'name']):
-        try:
-            if p.info['name'] and 'yuanbao' in p.info['name'].lower():
-                yuanbao_proc = p
-                break
-        except Exception:
-            pass
+        # 1. Check if yuanbao.exe is already running (Tgent's actual process)
+        yuanbao_proc = None
+        for p in psutil.process_iter(['pid', 'name']):
+            try:
+                if p.info['name'] and 'yuanbao' in p.info['name'].lower():
+                    yuanbao_proc = p
+                    break
+            except Exception:
+                pass
 
-    if yuanbao_proc:
-        # Already running — try to bring its window to front
-        try:
-            windows = Desktop(backend="uia").windows()
-            for w in windows:
-                title = w.window_text()
-                if title and ("yuanbao" in title.lower() or "天翼" in title):
-                    try:
-                        w.set_focus()
-                    except Exception:
-                        pass
-                    return
-        except Exception:
-            pass
+        if yuanbao_proc:
+            # Already running — try to bring its window to front
+            try:
+                windows = Desktop(backend="uia").windows()
+                for w in windows:
+                    title = w.window_text()
+                    if title and ("yuanbao" in title.lower() or "天翼" in title):
+                        try:
+                            w.set_focus()
+                        except Exception:
+                            pass
+                        return
+            except Exception:
+                pass
 
-    # 2. Not running or window not found — launch fresh
-    os.startfile(app_path)
+        # 2. Not running or window not found — launch fresh
+        os.startfile(app_path)
+    finally:
+        pythoncom.CoUninitialize()
 
 
 # ---------------------------------------------------------------------------

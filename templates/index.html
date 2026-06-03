@@ -19,15 +19,11 @@
       <div class="logo">
         <div class="logo-icon">A</div>
         <span>Auth<span class="accent-text">Dash</span></span>
-        <div class="logo-sub">Ray的运维工作台</div>
-      </div>
-      <div class="nav-tabs">
-        <div class="nav-tab active" data-view="dashboard">工作台</div>
       </div>
     </div>
     <div class="topbar-right">
       <span class="topbar-time" id="clock">--:--:--</span>
-      <div class="topbar-avatar">R</div>
+      <div class="topbar-avatar">Ray</div>
     </div>
   </header>
 
@@ -36,89 +32,44 @@
 
     <!-- ===== View: Dashboard ===== -->
     <div id="view-dashboard" class="view active">
-      <div class="page-header">
-        <div>
-          <h1 class="page-title">运维工作台</h1>
-          <p class="page-sub"></p>
+
+      <!-- Stats row -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-num" id="stat-platforms">-</div>
+          <div class="stat-label">已注册平台</div>
         </div>
-        <div class="page-header-right">
-          <span class="badge">v0.3</span>
+        <div class="stat-card">
+          <div class="stat-num" id="stat-sites">-</div>
+          <div class="stat-label">已注册站点</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="stat-tools">-</div>
+          <div class="stat-label">工具</div>
         </div>
       </div>
 
-      <div class="grid">
-        <!-- Auto-Login -->
-        <div class="card" id="card-autologin">
-          <div class="card-header">
-            <div class="card-title-group">
-              <div class="card-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/><circle cx="12" cy="16" r="1"/></svg>
-              </div>
-              <div class="card-title">自动登录</div>
-            </div>
-            <span class="card-count" id="autologin-count">加载中…</span>
+      <!-- DNS tool -->
+      <div class="tools-row">
+        <div class="tool-card">
+          <div class="tool-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
           </div>
-          <div class="section-label-sm">常用站点 · 快速直达</div>
-          <div class="site-chips" id="site-chips">
-            <div class="loading-pulse">加载站点中…</div>
-          </div>
-          <div class="card-footer-link">
-            <a id="btn-show-sites">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
-              全部分类 · 按云平台浏览 →
-            </a>
-            <a id="btn-refresh">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
-              刷新
-            </a>
-          </div>
-        </div>
-
-        <!-- DNS Query -->
-        <div class="card">
-          <div class="card-header">
-            <div class="card-title-group">
-              <div class="card-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
-              </div>
-              <div class="card-title">DNS 查询</div>
-            </div>
-            <span class="card-count">工具</span>
-          </div>
-          <div class="dns-input-row">
+          <div class="tool-body">
+            <div class="tool-name">DNS 查询</div>
             <input type="text" id="dns-input" placeholder="输入域名，如 api.example.com">
-            <button class="btn-primary" id="dns-btn">查询</button>
           </div>
-          <div class="dns-result" id="dns-result">
-            <div class="placeholder">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-              <span>输入域名，点击查询</span>
-            </div>
-          </div>
+          <button class="btn-primary" id="dns-btn" style="padding:8px 16px;font-size:0.82rem;">查询</button>
         </div>
       </div>
-    </div>
+      <div id="dns-result" class="dns-result"></div>
 
-    <!-- ===== View: Site List ===== -->
-    <div id="view-sites" class="view">
-      <div class="page-header">
-        <div class="page-header-left">
-          <a class="back-btn" id="btn-back-dashboard">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-            返回工作台
-          </a>
-          <div>
-            <h1 class="page-title">自动登录</h1>
-            <p class="page-sub">选择站点 · 自动填充凭证</p>
-          </div>
-        </div>
-        <div class="page-header-right">
-          <span class="badge" id="sites-count-badge">-- 站点</span>
-        </div>
+      <!-- Platform grid -->
+      <div class="section-label">
+        平台分类 <span class="count" id="platform-count">· 加载中…</span>
       </div>
-
-      <div class="regions" id="site-regions">
-        <div class="loading-pulse">加载站点列表…</div>
+      <div class="platform-grid" id="platform-grid">
+        <div class="loading-pulse">加载平台分类…</div>
       </div>
     </div>
 
@@ -169,7 +120,6 @@
   function update() {
     time += 0.005;
 
-    // Phase 1: compute target Z
     for (const p of points) {
       const dx = p.ox - W / 2;
       const dy = p.oy - H / 2;
@@ -193,7 +143,6 @@
       }
     }
 
-    // Phase 2: neighbour coupling
     for (let r = 0; r <= rows; r++) {
       for (let c = 0; c <= cols; c++) {
         const p = points[r * (cols + 1) + c];
@@ -207,14 +156,12 @@
       }
     }
 
-    // Phase 3: spring physics
     for (const p of points) {
       p.vz += (p.targetZ - p.z) * 0.06;
       p.vz *= 0.94;
       p.z += p.vz;
     }
 
-    // Update ripples
     for (let i = ripples.length - 1; i >= 0; i--) {
       ripples[i].radius += ripples[i].speed;
       ripples[i].strength *= 0.996;
@@ -227,7 +174,6 @@
   function draw() {
     ctx.clearRect(0, 0, W, H);
 
-    // Connections
     for (let r = 0; r < rows; r++) {
       for (let c = 0; c < cols; c++) {
         const idx = r * (cols + 1) + c;
@@ -260,7 +206,6 @@
       }
     }
 
-    // Points
     for (const p of points) {
       const opacity = 0.3 + (p.z + 6) / 18 * 0.4;
       const size = 1.2 + (p.z + 6) / 18 * 1.2;
@@ -342,23 +287,6 @@ function tick() {
 tick(); setInterval(tick, 1000);
 
 // ===== ===== ===== ===== ===== ===== ===== =====
-//  View Switching
-// ===== ===== ===== ===== ===== ===== ===== =====
-function showView(name) {
-  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-  document.getElementById('view-' + name).classList.add('active');
-}
-
-document.getElementById('btn-show-sites').addEventListener('click', () => {
-  renderSiteList();
-  showView('sites');
-});
-
-document.getElementById('btn-back-dashboard').addEventListener('click', () => {
-  showView('dashboard');
-});
-
-// ===== ===== ===== ===== ===== ===== ===== =====
 //  Load Config & Render Dashboard
 // ===== ===== ===== ===== ===== ===== ===== =====
 async function loadConfig() {
@@ -372,132 +300,78 @@ async function loadConfig() {
 }
 
 function renderDashboard() {
-  let totalSites = 0;
-  const allChips = [];
+  // — Stats —
+  let platformCount = 0;
+  let siteCount = 0;
+  for (const region of configData) {
+    const webSites = (region.sites || []).filter(s => s.type !== 'app');
+    if (webSites.length > 0) platformCount++;
+    siteCount += webSites.length;
+  }
+  document.getElementById('stat-platforms').textContent = platformCount;
+  document.getElementById('stat-sites').textContent = siteCount;
+  document.getElementById('stat-tools').textContent = '1';
+
+  // — Platform grid —
+  const grid = document.getElementById('platform-grid');
+  grid.innerHTML = '';
 
   for (const region of configData) {
-    for (const site of (region.sites || [])) {
-      if (site.type === 'app') continue;
-      totalSites++;
-      allChips.push({
-        sid: site.id,
-        sname: site.name || site.id,
-        rid: region.id,
-        color: REGION_COLORS[region.id] || '#8892a8',
-        rlabel: REGION_LABELS[region.id] || region.id,
-      });
-    }
-  }
-
-  document.getElementById('autologin-count').textContent = configData.length + ' 平台 · ' + totalSites + ' 站点';
-
-  const chipsContainer = document.getElementById('site-chips');
-  chipsContainer.innerHTML = '';
-  const maxChips = 8;
-  allChips.forEach((ch, i) => {
-    const div = document.createElement('div');
-    div.className = 'site-chip' + (i >= maxChips ? ' chip-hidden' : '');
-    div.innerHTML = `<span class="chip-dot" style="background:${ch.color}"></span>
-      ${escapeHtml(ch.sname)}
-      <span class="region-tag">${escapeHtml(ch.rlabel)}</span>`;
-    div.addEventListener('click', () => doLogin(ch.sid));
-    chipsContainer.appendChild(div);
-  });
-  if (allChips.length > maxChips) {
-    const more = document.createElement('div');
-    more.className = 'site-chip chip-more';
-    more.textContent = `+${allChips.length - maxChips} 更多`;
-    more.addEventListener('click', () => {
-      renderSiteList();
-      showView('sites');
-    });
-    chipsContainer.appendChild(more);
-  }
-}
-
-// ===== ===== ===== ===== ===== ===== ===== =====
-//  Site List View
-// ===== ===== ===== ===== ===== ===== ===== =====
-function renderSiteList(highlightId) {
-  const container = document.getElementById('site-regions');
-  container.innerHTML = '';
-
-  let total = 0;
-  for (const region of configData) {
-    const sites = region.sites || [];
-    const webSites = sites.filter(s => s.type !== 'app');
-    if (webSites.length === 0) continue;
-    total += webSites.length;
-
-    const isHighlight = highlightId && region.id === highlightId;
-    const section = document.createElement('div');
-    section.className = 'region' + (isHighlight ? ' region-highlight' : '');
-    section.dataset.regionId = region.id;
+    const webSites = (region.sites || []).filter(s => s.type !== 'app');
+    const isEmpty = webSites.length === 0;
 
     const color = REGION_COLORS[region.id] || '#8892a8';
     const rname = region.name || region.id;
 
-    let cardsHtml = '';
-    for (const site of webSites) {
-      const sid = escapeHtml(site.id);
-      const sname = escapeHtml(site.name || sid);
-      const isOrange = site.color === 'orange' ? ' card-orange' : '';
-      cardsHtml += `<div class="card${isOrange}" data-site-id="${sid}" data-type="web">
-        <div class="card-body">
-          <div class="card-title">${sname}</div>
-        </div>
-      </div>`;
+    const card = document.createElement('div');
+    card.className = 'platform-card' + (isEmpty ? ' empty' : '');
+    card.dataset.regionId = region.id;
+
+    let sitesHtml = '';
+    if (!isEmpty) {
+      for (const site of webSites) {
+        const sid = escapeHtml(site.id);
+        const sname = escapeHtml(site.name || sid);
+        const initial = sname.charAt(0);
+        sitesHtml += `<div class="site-item" data-site-id="${sid}">
+          <span class="si-icon">${escapeHtml(initial)}</span>
+          <span class="si-label">${sname}</span>
+        </div>`;
+      }
     }
 
-    section.innerHTML = `
-      <div class="region-header" data-region="${region.id}">
-        <h2><span class="region-dot" style="background:${color}"></span> ${escapeHtml(rname)}</h2>
-        <div class="region-header-right">
-          <span class="region-count">${webSites.length} 站点</span>
-          <span class="region-arrow" id="arrow-${region.id}">▼</span>
-        </div>
+    card.innerHTML = `
+      <div class="pf-header">
+        <span class="platform-dot" style="background:${color}"></span>
+        <span class="pf-name">${escapeHtml(rname)}</span>
+        <span class="pf-count">${webSites.length}</span>
       </div>
-      <div class="region-content" id="region-${region.id}">
-        <div class="grid-sites">${cardsHtml}</div>
-      </div>`;
+      ${sitesHtml ? `<div class="pf-sites">${sitesHtml}</div>` : ''}`;
 
-    container.appendChild(section);
-
-    const header = section.querySelector('.region-header');
-    header.addEventListener('click', () => {
-      const content = document.getElementById('region-' + region.id);
-      const arrow = document.getElementById('arrow-' + region.id);
-      const collapsed = content.classList.toggle('collapsed');
-      arrow.textContent = collapsed ? '▶' : '▼';
-    });
+    grid.appendChild(card);
   }
 
-  document.getElementById('sites-count-badge').textContent = total + ' 站点';
-
-  if (highlightId) {
-    const target = document.getElementById('region-' + highlightId);
-    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
-
-  attachCardHandlers();
-}
-
-function attachCardHandlers() {
-  document.querySelectorAll('#view-sites .card').forEach(card => {
-    card.addEventListener('click', async () => {
-      if (card.classList.contains('loading')) return;
-      const siteId = card.dataset.siteId;
-      await doLogin(siteId);
+  // — Attach login handlers —
+  grid.querySelectorAll('.site-item').forEach(el => {
+    el.addEventListener('click', async () => {
+      if (el.classList.contains('loading')) return;
+      el.classList.add('loading');
+      await doLogin(el.dataset.siteId);
+      el.classList.remove('loading');
     });
   });
+
+  // — Update platform count label —
+  document.getElementById('platform-count').textContent =
+    '· ' + platformCount + ' 个平台 · ' + siteCount + ' 个站点';
 }
 
 // ===== ===== ===== ===== ===== ===== ===== =====
 //  Login
 // ===== ===== ===== ===== ===== ===== ===== =====
 async function doLogin(siteId) {
-  const cards = document.querySelectorAll(`.card[data-site-id="${siteId}"]`);
-  cards.forEach(c => c.classList.add('loading'));
+  const items = document.querySelectorAll(`.site-item[data-site-id="${siteId}"]`);
+  items.forEach(el => el.style.opacity = '0.5');
 
   try {
     const resp = await fetch('/api/login/' + encodeURIComponent(siteId), { method: 'POST' });
@@ -510,7 +384,7 @@ async function doLogin(siteId) {
   } catch (e) {
     showToast('❌ 网络错误：' + e.message, 'error');
   } finally {
-    cards.forEach(c => c.classList.remove('loading'));
+    items.forEach(el => el.style.opacity = '');
   }
 }
 
@@ -558,12 +432,6 @@ async function doDnsQuery() {
 document.getElementById('dns-btn').addEventListener('click', doDnsQuery);
 document.getElementById('dns-input').addEventListener('keydown', e => {
   if (e.key === 'Enter') doDnsQuery();
-});
-
-// Refresh button
-document.getElementById('btn-refresh').addEventListener('click', () => {
-  renderDashboard();
-  showToast('🔄 已刷新', 'success');
 });
 
 // ===== ===== ===== ===== ===== ===== ===== =====
