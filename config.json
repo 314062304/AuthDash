@@ -111,5 +111,33 @@
     "id": "tencent_cloud",
     "name": "腾讯云",
     "sites": []
+  },
+  {
+    "id": "resource_dist",
+    "name": "资源分发平台",
+    "sites": [
+      {
+        "id": "rd_government_bastion",
+        "type": "web",
+        "name": "政务网堡垒机",
+        "url": "https://192.160.50.1",
+        "selectors": {
+          "username": "input[name=\"username\"]",
+          "password": "#tUserLock",
+          "login_button": "button:has-text('登录')"
+        }
+      },
+      {
+        "id": "rd_internet_bastion",
+        "type": "web",
+        "name": "互联网堡垒机",
+        "url": "https://192.160.41.2",
+        "selectors": {
+          "username": "input[name=\"username\"]",
+          "password": "#tUserLock",
+          "login_button": "button:has-text('登录')"
+        }
+      }
+    ]
   }
 ]

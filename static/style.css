@@ -511,3 +511,17 @@ body::after {
   .topbar { padding: 0 16px; }
   .page-header-left { flex-direction: column; align-items: flex-start; gap: 8px; }
 }
+
+/* ===== Nav Tabs ===== */
+.nav-tabs { display: flex; gap: 2px; }
+.nav-tab {
+  padding: 6px 14px; border-radius: 8px;
+  font-size: 0.78rem; font-weight: 500;
+  color: var(--text-muted); cursor: pointer; user-select: none;
+  transition: all 0.15s;
+}
+.nav-tab:hover { background: var(--accent-bg); color: var(--accent); }
+.nav-tab.active { background: var(--accent-bg); color: var(--accent); font-weight: 600; }
+
+
+

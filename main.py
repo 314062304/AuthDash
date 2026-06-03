@@ -2,8 +2,15 @@ import json
 import os
 import asyncio
 import subprocess
+import sys
 from pathlib import Path
 from contextlib import asynccontextmanager
+
+# ── Point Playwright to system-installed browsers ──────────────
+os.environ.setdefault(
+    "PLAYWRIGHT_BROWSERS_PATH",
+    os.path.expanduser("~/AppData/Local/ms-playwright"),
+)
 
 import dns.resolver
 import dns.exception
@@ -11,8 +18,9 @@ import dns.exception
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
-from playwright.async_api import async_playwright, Browser, Playwright
+from playwright.sync_api import sync_playwright
 from dotenv import load_dotenv
+
 # ---------------------------------------------------------------------------
 # Paths
 # ---------------------------------------------------------------------------
@@ -23,10 +31,12 @@ STATIC_DIR = BASE_DIR / "static"
 
 # ---------------------------------------------------------------------------
 # Globals — a single headed browser instance shared across requests
+# NOTE: Playwright runs via sync_api wrapped in run_in_executor to work
+# around Python 3.13 Windows asyncio subprocess issue (NotImplementedError)
 # ---------------------------------------------------------------------------
-_playwright: Playwright | None = None
-_browser: Browser | None = None
-_lock = asyncio.Lock()
+_playwright = None
+_browser = None
+_browser_lock = asyncio.Lock()
 
 
 # ---------------------------------------------------------------------------
@@ -55,43 +65,113 @@ def get_credentials(site_id: str) -> tuple[str | None, str | None]:
     return username, password
 
 
-async def ensure_browser() -> Browser:
+# ── Synchronous Playwright helpers (run in executor) ──────────────
+
+def _ensure_browser_sync():
+    """Get or create the shared browser instance (sync, runs in executor)."""
     global _playwright, _browser
-    async with _lock:
-        if _browser is not None and not _browser.is_connected():
-            try:
-                await _browser.close()
-            except Exception:
-                pass
-            _browser = None
-        if _browser is None:
-            if _playwright is None:
-                _playwright = await async_playwright().start()
-            _browser = await _playwright.chromium.launch(
-                headless=False,
-                args=[
-                    "--start-maximized",
-                    "--ignore-certificate-errors",
-                    "--disable-web-security",
-                ],
-            )
+    if _browser is not None and _browser.is_connected():
         return _browser
+    # Close stale browser if any
+    if _browser is not None:
+        try:
+            _browser.close()
+        except Exception:
+            pass
+        _browser = None
+    if _playwright is None:
+        _playwright = sync_playwright().start()
+    _browser = _playwright.chromium.launch(
+        headless=False,
+        args=[
+            "--start-maximized",
+            "--ignore-certificate-errors",
+            "--disable-web-security",
+        ],
+    )
+    return _browser
 
 
-async def shutdown_browser():
+def _shutdown_browser_sync():
+    """Close browser and stop playwright (sync)."""
     global _playwright, _browser
     if _browser is not None:
         try:
-            await _browser.close()
+            _browser.close()
         except Exception:
             pass
         _browser = None
     if _playwright is not None:
         try:
-            await _playwright.stop()
+            _playwright.stop()
         except Exception:
             pass
         _playwright = None
+
+
+def _do_login_sync(site: dict, username: str | None, password: str | None) -> dict:
+    """Synchronous login flow — runs in a thread via asyncio.to_thread."""
+    print(f"[AuthDash] _do_login_sync starting for {site.get('id', '?')}", flush=True)
+    browser = _ensure_browser_sync()
+    print(f"[AuthDash] browser ready, creating context", flush=True)
+    context = browser.new_context(
+        no_viewport=True,
+        ignore_https_errors=True,
+    )
+    page = context.new_page()
+
+    selectors = site.get("selectors", {})
+
+    # Auto-dismiss dialogs
+    page.on("dialog", lambda dialog: dialog.accept())
+
+    page.goto(site["url"], wait_until="load", timeout=30000)
+
+    # Click pre-fill elements (e.g. switching to SMS/login tab)
+    for tab_sel in selectors.get("pre_fill_clicks", []):
+        try:
+            page.wait_for_timeout(2000)
+            el = page.query_selector(tab_sel)
+            if el:
+                el.click()
+            page.wait_for_timeout(2000)
+        except Exception:
+            pass
+
+    if selectors.get("username") and username:
+        try:
+            page.wait_for_selector(selectors["username"], state="attached", timeout=15000)
+            page.fill(selectors["username"], username)
+        except Exception:
+            page.evaluate("([sel, val]) => { const el = document.querySelector(sel); if (el) el.value = val; }",
+                          [selectors["username"], username])
+            page.fill(selectors["username"], username)
+
+    if selectors.get("password") and password:
+        page.wait_for_selector(selectors["password"], timeout=10000)
+        page.fill(selectors["password"], password)
+
+    # Pre-checks (checkboxes / agreements)
+    for check_selector in selectors.get("pre_checks", []):
+        try:
+            page.wait_for_selector(check_selector, timeout=3000)
+            page.click(check_selector, force=True)
+        except Exception:
+            pass
+
+    # Click login button
+    btn = selectors.get("login_button")
+    if btn:
+        try:
+            page.wait_for_selector(btn, timeout=5000)
+            page.click(btn, force=True)
+        except Exception:
+            pass
+
+    return {
+        "status": "ok",
+        "message": f"已打开 {site['name']} 并填入凭据。浏览器已就绪，请手动操作。",
+    }
 
 
 # ---------------------------------------------------------------------------
@@ -108,7 +188,8 @@ def render_index() -> str:
 async def lifespan(app: FastAPI):
     load_dotenv()
     yield
-    await shutdown_browser()
+    loop = asyncio.get_event_loop()
+    await loop.run_in_executor(None, _shutdown_browser_sync)
 
 
 app = FastAPI(title="AuthDash", version="0.1.0", lifespan=lifespan)
@@ -206,67 +287,22 @@ async def login(site_id: str):
         )
 
     try:
-        browser = await ensure_browser()
-        context = await browser.new_context(
-            no_viewport=True,
-            ignore_https_errors=True,
+        # Use asyncio.wait_for to enforce an overall deadline
+        result = await asyncio.wait_for(
+            asyncio.to_thread(_do_login_sync, site, username, password),
+            timeout=60,
         )
-        page = await context.new_page()
-
-        # Auto-dismiss permission / certificate dialogs
-        page.on("dialog", lambda dialog: dialog.accept())
-
-        await page.goto(site["url"], wait_until="load", timeout=30000)
-
-        # Click pre-fill elements (e.g. switching to SMS/login tab) before filling
-        for tab_sel in selectors.get("pre_fill_clicks", []):
-            try:
-                await page.wait_for_timeout(2000)
-                await page.evaluate("(sel) => { const el = document.querySelector(sel); if(el) el.click(); }", tab_sel)
-                await page.wait_for_timeout(2000)
-            except Exception:
-                pass
-
-        if selectors.get("username"):
-            try:
-                # Use 'attached' instead of 'visible' — the input may be rendered but behind CSS transitions
-                await page.wait_for_selector(selectors["username"], state="attached", timeout=15000)
-                await page.fill(selectors["username"], username)
-            except Exception:
-                await page.evaluate(f"""([sel, val]) => {{
-                    const el = document.querySelector(sel);
-                    if (el) el.value = val;
-                }})""", [selectors["username"], username])
-            await page.fill(selectors["username"], username)
-
-        if selectors.get("password"):
-            await page.wait_for_selector(selectors["password"], timeout=10000)
-            await page.fill(selectors["password"], password)
-
-        # Click pre-checks (checkboxes / agreements) before login button
-        for check_selector in selectors.get("pre_checks", []):
-            try:
-                await page.wait_for_selector(check_selector, timeout=3000)
-                await page.click(check_selector, force=True)
-            except Exception:
-                pass
-
-        # Click login button (best-effort)
-        btn = selectors.get("login_button")
-        if btn:
-            try:
-                await page.wait_for_selector(btn, timeout=5000)
-                await page.click(btn, force=True)
-            except Exception:
-                pass
-
-        return JSONResponse({
-            "status": "ok",
-            "message": f"Opened {site['name']} and filled credentials. Browser is ready for your manual input.",
-        })
-
+        return JSONResponse(result)
+    except asyncio.TimeoutError:
+        raise HTTPException(status_code=504, detail="登录操作超时（60 秒），浏览器可能卡在启动或页面加载")
+    except HTTPException:
+        raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        import traceback
+        detail = f"{type(e).__name__}: {e}"
+        print(f"[AuthDash] login error: {detail}", flush=True)
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=detail)
 
 
 # ---------------------------------------------------------------------------
