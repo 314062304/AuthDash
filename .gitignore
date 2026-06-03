@@ -24,6 +24,12 @@ env/
 
 # --- Logs ---
 *.log
+.*.log
+
+# --- 测试 & 生成文件（禁止提交） ---
+_*.txt
+_debug_page.py
+pyw_test.txt
 
 # --- OS ---
 .DS_Store

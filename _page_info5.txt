@@ -1,9 +1,0 @@
-Tab click result: clicked tab 2: 本地账号 | 短信 | 邮箱 | Tgent扫码
-
-=== Visible inputs after tab click ===
-  "请输入邮箱" type=text
-  "请输入邮箱验证码" type=text
-
-=== Visible buttons ===
-  "登录"
-  "下载终端"
