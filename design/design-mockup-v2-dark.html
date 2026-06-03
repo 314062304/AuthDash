@@ -17,6 +17,19 @@ body {
   min-height: 100vh;
 }
 
+/* ── Grid background ── */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: linear-gradient(rgba(88,166,255,0.035) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(88,166,255,0.035) 1px, transparent 1px);
+  background-size: 60px 60px;
+  pointer-events: none;
+  z-index: 0;
+}
+#app { position: relative; z-index: 1; }
+
 /* ── Topbar ── */
 .topbar {
   display: flex; align-items: center; justify-content: space-between;
@@ -67,7 +80,7 @@ body {
   color: #f0f6fc; line-height: 1.1;
 }
 .stat-card .label {
-  font-size: 0.8rem; color: #8b949e;
+  font-size: 0.75rem; color: #8b949e;
   margin-top: 3px;
 }
 
@@ -120,7 +133,7 @@ body {
 .section-label {
   font-size: 0.9rem; font-weight: 600;
   color: #f0f6fc;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
   padding-bottom: 8px;
   border-bottom: 1px solid #21262d;
   display: flex; align-items: center; gap: 8px;
@@ -213,10 +226,12 @@ body {
 </head>
 <body>
 
+<div id="app">
+
 <div class="topbar">
   <div class="topbar-left">
     <div class="logo">A</div>
-    <span class="topbar-title">Auth<span>Dash</span></span>
+    <span class="topbar-title">⚡ Auth<span>Dash</span></span>
   </div>
   <div class="topbar-right">
     <span class="topbar-time">--:--:--</span>
@@ -230,15 +245,15 @@ body {
   <div class="stats-row">
     <div class="stat-card">
       <div class="num">4</div>
-      <div class="label">已注册平台</div>
+      <div class="label">📦 已注册平台</div>
     </div>
     <div class="stat-card">
       <div class="num">10</div>
-      <div class="label">已注册站点</div>
+      <div class="label">🔗 已注册站点</div>
     </div>
     <div class="stat-card">
       <div class="num">1</div>
-      <div class="label">工具</div>
+      <div class="label">🛠 工具</div>
     </div>
   </div>
 
@@ -249,7 +264,7 @@ body {
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
       </div>
       <div class="tool-body">
-        <div class="tool-name">DNS 查询</div>
+        <div class="tool-name">🌐 DNS 查询</div>
         <input type="text" placeholder="输入域名，如 api.example.com">
       </div>
       <button class="tool-btn">查询</button>
@@ -258,7 +273,7 @@ body {
 
   <!-- Platforms -->
   <div class="section-label">
-    平台分类 <span class="count">· 4 个平台 · 10 个站点</span>
+    📂 平台分类 <span class="count">· 4 个平台 · 10 个站点</span>
   </div>
 
   <div class="platform-grid">
@@ -322,7 +337,9 @@ body {
 
   </div>
 
-  <div class="footnote">暗色科技风 · 设计稿 v1 · design/ 归档</div>
+  <div class="footnote">🌙 暗色科技风 · 设计稿 v1 · design/ 归档</div>
+
+</div>
 
 </div>
 
