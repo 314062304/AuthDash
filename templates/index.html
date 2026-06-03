@@ -37,15 +37,15 @@
       <div class="stats-row">
         <div class="stat-card">
           <div class="stat-num" id="stat-platforms">-</div>
-          <div class="stat-label">已注册平台</div>
+          <div class="stat-label">📦 已注册平台</div>
         </div>
         <div class="stat-card">
           <div class="stat-num" id="stat-sites">-</div>
-          <div class="stat-label">已注册站点</div>
+          <div class="stat-label">🔗 已注册站点</div>
         </div>
         <div class="stat-card">
           <div class="stat-num" id="stat-tools">-</div>
-          <div class="stat-label">工具</div>
+          <div class="stat-label">🛠 工具</div>
         </div>
       </div>
 
@@ -56,7 +56,7 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
           </div>
           <div class="tool-body">
-            <div class="tool-name">DNS 查询</div>
+            <div class="tool-name">🌐 DNS 查询</div>
             <input type="text" id="dns-input" placeholder="输入域名，如 api.example.com">
           </div>
           <button class="btn-primary" id="dns-btn" style="padding:8px 16px;font-size:0.82rem;">查询</button>
@@ -66,7 +66,7 @@
 
       <!-- Platform grid -->
       <div class="section-label">
-        平台分类 <span class="count" id="platform-count">· 加载中…</span>
+        📂 平台分类 <span class="count" id="platform-count">· 加载中…</span>
       </div>
       <div class="platform-grid" id="platform-grid">
         <div class="loading-pulse">加载平台分类…</div>
@@ -187,7 +187,7 @@
           ctx.beginPath();
           ctx.moveTo(p.ox, p.oy + p.z);
           ctx.lineTo(pr.ox, pr.oy + pr.z);
-          ctx.strokeStyle = `rgba(59,108,255,${op * 0.2})`;
+          ctx.strokeStyle = `rgba(88,166,255,${op * 0.2})`;
           ctx.lineWidth = 0.5;
           ctx.stroke();
         }
@@ -199,7 +199,7 @@
           ctx.beginPath();
           ctx.moveTo(p.ox, p.oy + p.z);
           ctx.lineTo(pd.ox, pd.oy + pd.z);
-          ctx.strokeStyle = `rgba(6,182,212,${op * 0.17})`;
+          ctx.strokeStyle = `rgba(63,185,80,${op * 0.17})`;
           ctx.lineWidth = 0.5;
           ctx.stroke();
         }
@@ -211,7 +211,7 @@
       const size = 1.2 + (p.z + 6) / 18 * 1.2;
       ctx.beginPath();
       ctx.arc(p.ox, p.oy + p.z, size, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(59,108,255,${opacity * 0.5})`;
+      ctx.fillStyle = `rgba(88,166,255,${opacity * 0.5})`;
       ctx.fill();
     }
   }
