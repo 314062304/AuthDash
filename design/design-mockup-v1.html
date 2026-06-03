@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AuthDash · 设计稿 (归档)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: #f0f2f8;
+  color: #1a1d2e;
+  padding: 0;
+  font-size: 18px;
+}
+.container { max-width: 1100px; margin: 0 auto; padding: 32px 20px; }
+
+/* ── Topbar ── */
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 24px;
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(226,230,240,0.5);
+}
+.topbar-left { display: flex; align-items: center; gap: 14px; }
+.logo {
+  width: 34px; height: 34px;
+  background: linear-gradient(135deg, #3b6cff, #6b8fff);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-weight: 800; font-size: 0.9rem;
+}
+.topbar-title { font-size: 1rem; font-weight: 700; }
+.topbar-title span { color: #3b6cff; }
+.topbar-sub {
+  font-size: 0.72rem; color: #959bb8;
+  margin-left: 4px; font-weight: 500;
+}
+.topbar-right { display: flex; align-items: center; gap: 14px; }
+.topbar-time {
+  font-size: 0.82rem; font-weight: 600;
+  color: #1a1d2e; font-variant-numeric: tabular-nums;
+}
+.avatar {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: linear-gradient(135deg, #3b6cff, #6b8fff);
+  color: #fff; display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 0.75rem;
+}
+
+.main { padding: 28px 24px; max-width: 1100px; margin: 0 auto; }
+
+/* ── Stats ── */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-bottom: 28px;
+}
+.stat-card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 20px 18px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03);
+}
+.stat-card .num {
+  font-size: 1.8rem; font-weight: 800;
+  color: #1a1d2e; line-height: 1.1;
+}
+.stat-card .label {
+  font-size: 0.78rem; color: #959bb8;
+  margin-top: 3px;
+}
+
+/* ── Tools ── */
+.tools-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 28px;
+}
+.tool-card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 16px 18px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03);
+  display: flex; align-items: center; gap: 10px;
+}
+.tool-card .tool-icon {
+  width: 34px; height: 34px;
+  background: rgba(59,108,255,0.08);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.tool-card .tool-icon svg { width: 18px; height: 18px; color: #3b6cff; }
+.tool-card .tool-body { flex: 1; }
+.tool-card .tool-name { font-size: 0.78rem; font-weight: 600; margin-bottom: 2px; }
+.tool-card input {
+  width: 100%; padding: 6px 0;
+  border: none; border-bottom: 1px solid #e6eaf0;
+  font-size: 0.82rem; font-family: inherit;
+  outline: none; background: transparent;
+  transition: border-color 0.15s;
+}
+.tool-card input:focus { border-bottom-color: #3b6cff; }
+.tool-card input::placeholder { color: #b0b6cc; }
+
+/* ── Section label ── */
+.section-label {
+  font-size: 0.9rem; font-weight: 700;
+  margin-bottom: 14px;
+  display: flex; align-items: center; gap: 8px;
+}
+.section-label .count {
+  font-size: 0.72rem; font-weight: 500;
+  color: #959bb8;
+}
+
+/* ── Platform grid ── */
+.platform-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+.platform-card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 18px 18px 14px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03);
+}
+.platform-card .pf-header {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #f0f2f8;
+}
+.platform-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.platform-card .pf-name { font-size: 0.85rem; font-weight: 600; flex: 1; }
+.platform-card .pf-count {
+  font-size: 0.68rem; color: #959bb8;
+  font-weight: 500;
+}
+.platform-card .pf-sites {
+  display: flex; flex-direction: column; gap: 6px;
+}
+.site-item {
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 0.78rem; font-weight: 500;
+  color: #2a2d3e;
+  cursor: pointer;
+  transition: all 0.12s;
+  display: flex; align-items: center; gap: 8px;
+}
+.site-item:hover {
+  background: rgba(59,108,255,0.06);
+  color: #3b6cff;
+}
+.site-item .si-icon {
+  width: 20px; height: 20px;
+  background: rgba(59,108,255,0.08);
+  border-radius: 5px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.6rem; color: #3b6cff; font-weight: 700;
+  flex-shrink: 0;
+}
+.site-item .si-label { flex: 1; }
+.platform-card.empty { opacity: 0.45; }
+
+.footnote {
+  text-align: center; padding: 24px 0;
+  font-size: 0.72rem; color: #b0b6cc;
+}
+
+@media (max-width: 860px) {
+  .stats-row { grid-template-columns: repeat(2, 1fr); }
+  .tools-row { grid-template-columns: 1fr; }
+  .platform-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 540px) {
+  .platform-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="logo">A</div>
+    <span class="topbar-title">Auth<span>Dash</span></span>
+    <span class="topbar-sub">Ray的运维工作台</span>
+  </div>
+  <div class="topbar-right">
+    <span class="topbar-time">14:32:18</span>
+    <div class="avatar">R</div>
+  </div>
+</div>
+
+<div class="main">
+
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="num">4</div>
+      <div class="label">已注册平台</div>
+    </div>
+    <div class="stat-card">
+      <div class="num">11</div>
+      <div class="label">已注册站点</div>
+    </div>
+    <div class="stat-card">
+      <div class="num">2</div>
+      <div class="label">工具</div>
+    </div>
+  </div>
+
+  <div class="tools-row">
+    <div class="tool-card">
+      <div class="tool-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+      </div>
+      <div class="tool-body">
+        <div class="tool-name">DNS 查询</div>
+        <input type="text" placeholder="输入域名，如 api.example.com">
+      </div>
+    </div>
+  </div>
+
+  <div class="section-label">
+    平台分类 <span class="count">· 4 个平台 · 11 个站点</span>
+  </div>
+
+  <div class="platform-grid">
+    <div class="platform-card">
+      <div class="pf-header">
+        <span class="platform-dot" style="background:#3b82f6"></span>
+        <span class="pf-name">首信云</span>
+        <span class="pf-count">2</span>
+      </div>
+      <div class="pf-sites">
+        <div class="site-item"><span class="si-icon">互</span><span class="si-label">互联网堡垒机</span></div>
+        <div class="site-item"><span class="si-icon">政</span><span class="si-label">政务外网堡垒机</span></div>
+      </div>
+    </div>
+    <div class="platform-card">
+      <div class="pf-header">
+        <span class="platform-dot" style="background:#f59e0b"></span>
+        <span class="pf-name">阿里云</span>
+        <span class="pf-count">4</span>
+      </div>
+      <div class="pf-sites">
+        <div class="site-item"><span class="si-icon">V</span><span class="si-label">VPN管理</span></div>
+        <div class="site-item"><span class="si-icon">V</span><span class="si-label">VPN登录</span></div>
+        <div class="site-item"><span class="si-icon">堡</span><span class="si-label">堡垒机</span></div>
+        <div class="site-item"><span class="si-icon">日</span><span class="si-label">日志易</span></div>
+      </div>
+    </div>
+    <div class="platform-card">
+      <div class="pf-header">
+        <span class="platform-dot" style="background:#10b981"></span>
+        <span class="pf-name">武汉信创云</span>
+        <span class="pf-count">1</span>
+      </div>
+      <div class="pf-sites">
+        <div class="site-item"><span class="si-icon">资</span><span class="si-label">资源管理模块</span></div>
+      </div>
+    </div>
+    <div class="platform-card">
+      <div class="pf-header">
+        <span class="platform-dot" style="background:#8b5cf6"></span>
+        <span class="pf-name">资源分发平台</span>
+        <span class="pf-count">2</span>
+      </div>
+      <div class="pf-sites">
+        <div class="site-item"><span class="si-icon">政</span><span class="si-label">政务网堡垒机</span></div>
+        <div class="site-item"><span class="si-icon">互</span><span class="si-label">互联网堡垒机</span></div>
+      </div>
+    </div>
+    <div class="platform-card empty">
+      <div class="pf-header">
+        <span class="platform-dot" style="background:#8b5cf6"></span>
+        <span class="pf-name">腾讯云</span>
+        <span class="pf-count">0</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="footnote">设计稿 v3 · 2025-06-03 · AuthDash 改版迭代归档</div>
+
+</div>
+
+</body>
+</html>
